@@ -141,6 +141,23 @@ export interface paths {
         patch: operations["updateMe"];
         trace?: never;
     };
+    "/api/v1/users/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get account capabilities */
+        get: operations["getMyCapabilities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/coaches/me": {
         parameters: {
             query?: never;
@@ -1001,6 +1018,15 @@ export interface components {
             avatar_url?: string;
             timezone?: string;
         };
+        ModeCapability: {
+            available: boolean;
+            /** @enum {string} */
+            setup_status: "not_started" | "in_progress" | "complete";
+        };
+        AccountCapabilitiesResponse: {
+            coach: components["schemas"]["ModeCapability"];
+            client: components["schemas"]["ModeCapability"];
+        };
         UpsertCoachProfileInput: {
             business_name?: string;
             bio?: string;
@@ -1683,6 +1709,28 @@ export interface operations {
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             404: components["responses"]["NotFound"];
+            500: components["responses"]["InternalServerError"];
+        };
+    };
+    getMyCapabilities: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Account capabilities */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountCapabilitiesResponse"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
             500: components["responses"]["InternalServerError"];
         };
     };

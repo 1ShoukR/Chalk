@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
@@ -6,9 +6,11 @@ import { getApiErrorMessage } from '@/src/api/auth';
 import { Button } from '@/src/components/mvp/Button';
 import { Screen } from '@/src/components/mvp/Screen';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { sanitizeReturnTo } from '@/src/lib/navigation';
 
 export default function SignUpScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ inviteCode?: string | string[]; returnTo?: string | string[] }>();
   const { signUp } = useAuth();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -16,6 +18,10 @@ export default function SignUpScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const rawInviteCode = Array.isArray(params.inviteCode) ? params.inviteCode[0] : params.inviteCode;
+  const inviteCode = typeof rawInviteCode === 'string' ? rawInviteCode.trim() : '';
+  const rawReturnTo = Array.isArray(params.returnTo) ? params.returnTo[0] : params.returnTo;
+  const returnTo = sanitizeReturnTo(typeof rawReturnTo === 'string' ? rawReturnTo : null);
 
   const onCreate = async () => {
     if (isSubmitting) {
@@ -32,6 +38,16 @@ export default function SignUpScreen() {
         last_name: lastName,
         password,
       });
+      if (inviteCode) {
+        router.replace(`/(onboarding)/client/step-2?inviteCode=${encodeURIComponent(inviteCode)}`);
+        return;
+      }
+
+      if (returnTo) {
+        router.replace(returnTo);
+        return;
+      }
+
       router.replace('/');
     } catch (nextError) {
       setError(getApiErrorMessage(nextError, 'Unable to create account.'));
@@ -94,7 +110,23 @@ export default function SignUpScreen() {
         onPress={onCreate}
         disabled={isSubmitting}
       />
-      <Button label="Already have an account?" onPress={() => router.push('/(auth)/sign-in')} variant="secondary" />
+      <Button
+        label="Already have an account?"
+        onPress={() => {
+          if (inviteCode) {
+            router.push(`/(auth)/sign-in?inviteCode=${encodeURIComponent(inviteCode)}`);
+            return;
+          }
+
+          if (returnTo) {
+            router.push(`/(auth)/sign-in?returnTo=${encodeURIComponent(returnTo)}`);
+            return;
+          }
+
+          router.push('/(auth)/sign-in');
+        }}
+        variant="secondary"
+      />
     </Screen>
   );
 }

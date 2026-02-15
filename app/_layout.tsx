@@ -12,6 +12,10 @@ export default function RootLayout() {
     <AppProviders>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
+        <Stack.Screen name="invite/[code]" />
+        <Stack.Screen name="workout/[id]" />
+        <Stack.Screen name="session/[id]" />
+        <Stack.Screen name="chat/[coachId]" />
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(onboarding)" />
         <Stack.Screen name="(coach)" />

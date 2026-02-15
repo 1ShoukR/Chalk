@@ -4,6 +4,7 @@ import type { components } from '@/openapi/generated';
 import { api } from '@/src/lib/api';
 
 type AuthResult = components['schemas']['AuthResult'];
+type AccountCapabilitiesResponse = components['schemas']['AccountCapabilitiesResponse'];
 type CoachProfile = components['schemas']['CoachProfile'];
 type ErrorResponse = components['schemas']['ErrorResponse'];
 type LoginInput = components['schemas']['LoginInput'];
@@ -43,6 +44,11 @@ async function getMyCoachProfile(): Promise<CoachProfile> {
   return data;
 }
 
+async function getMyCapabilities(): Promise<AccountCapabilitiesResponse> {
+  const { data } = await api.get<AccountCapabilitiesResponse>('/api/v1/users/capabilities');
+  return data;
+}
+
 function isNotFoundError(error: unknown): boolean {
   return isAxiosError(error) && error.response?.status === 404;
 }
@@ -67,6 +73,7 @@ function getApiErrorMessage(error: unknown, fallback: string): string {
 
 export {
   getApiErrorMessage,
+  getMyCapabilities,
   getMe,
   getMyCoachProfile,
   isNotFoundError,

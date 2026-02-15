@@ -1,10 +1,13 @@
 import { Tabs } from 'expo-router';
 
+import { ModeSwitchAction } from '@/src/components/mvp/ModeSwitchAction';
+
 export default function CoachTabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false,
+        headerRight: () => <ModeSwitchAction currentMode="coach" />,
+        headerShown: true,
       }}>
       <Tabs.Screen name="index" options={{ title: 'Home' }} />
       <Tabs.Screen name="clients" options={{ title: 'Clients' }} />

@@ -2,6 +2,11 @@ import { Redirect } from 'expo-router';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '@/src/contexts/AuthContext';
+import type { ModeCapability } from '@/src/types/auth';
+
+function isModeReady(capability: ModeCapability): boolean {
+  return capability.available && capability.setupStatus === 'complete';
+}
 
 export default function EntryRedirect() {
   const { isHydrating, session } = useAuth();
@@ -18,11 +23,30 @@ export default function EntryRedirect() {
     return <Redirect href="/(auth)/welcome" />;
   }
 
-  if (!session.onboardingComplete || !session.role) {
+  const coachReady = isModeReady(session.capabilities.coach);
+  const clientReady = isModeReady(session.capabilities.client);
+
+  if (!coachReady && !clientReady) {
+    if (session.capabilities.coach.setupStatus === 'in_progress') {
+      return <Redirect href="/(onboarding)/coach/step-1" />;
+    }
+
+    if (session.capabilities.client.setupStatus === 'in_progress') {
+      return <Redirect href="/(onboarding)/client/step-1" />;
+    }
+
     return <Redirect href="/(onboarding)/role-select" />;
   }
 
-  if (session.role === 'coach') {
+  if (session.activeMode === 'coach' && coachReady) {
+    return <Redirect href="/(coach)" />;
+  }
+
+  if (session.activeMode === 'client' && clientReady) {
+    return <Redirect href="/(client)" />;
+  }
+
+  if (coachReady) {
     return <Redirect href="/(coach)" />;
   }
 

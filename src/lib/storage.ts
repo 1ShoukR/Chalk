@@ -4,7 +4,7 @@ import type { Session } from '@/src/types/auth';
 
 const SESSION_KEY = 'chalk.session.v1';
 
-async function getStoredSession(): Promise<Session | null> {
+async function getStoredSession(): Promise<unknown | null> {
   const raw = await SecureStore.getItemAsync(SESSION_KEY);
 
   if (!raw) {
@@ -12,7 +12,7 @@ async function getStoredSession(): Promise<Session | null> {
   }
 
   try {
-    return JSON.parse(raw) as Session;
+    return JSON.parse(raw);
   } catch {
     await SecureStore.deleteItemAsync(SESSION_KEY);
     return null;
